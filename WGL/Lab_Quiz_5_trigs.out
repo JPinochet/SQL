@@ -1,0 +1,96 @@
+SQL> SET SERVEROUTPUT ON;
+SQL> SET ECHO ON;
+SQL> 
+SQL> CREATE OR REPLACE TRIGGER book_return_bir
+  2  	BEFORE INSERT ON wgl_return
+  3  	FOR EACH ROW
+  4  	DECLARE
+  5  	lv_accession_number	wgl_loan.accession_number%TYPE;
+  6  	lv_patron_number wgl_loan.patron_number%TYPE;
+  7  	BEGIN
+  8  		BEGIN
+  9  			SELECT accession_number
+ 10  				INTO lv_accession_number
+ 11  				FROM wgl_loan
+ 12  				WHERE accession_number = :NEW.accession_number
+ 13  				AND date_returned IS NULL;
+ 14  		EXCEPTION
+ 15  			WHEN NO_DATA_FOUND THEN
+ 16  				RAISE_APPLICATION_ERROR(-20001, 'That book was not on loan');
+ 17  		END;
+ 18  
+ 19  		BEGIN
+ 20  			SELECT patron_number
+ 21  				INTO lv_patron_number
+ 22  				FROM wgl_loan
+ 23  				WHERE accession_number = :NEW.accession_number
+ 24  				AND date_returned IS NULL;
+ 25  		EXCEPTION
+ 26  			WHEN NO_DATA_FOUND THEN
+ 27  				RAISE_APPLICATION_ERROR(-20002, 'That patron does not exist, or does not have a book on loan');
+ 28  		END;
+ 29  
+ 30  		:NEW.date_returned := TRUNC(SYSDATE);
+ 31  
+ 32  		UPDATE wgl_loan
+ 33  			SET date_returned = TRUNC(SYSDATE)
+ 34  			WHERE accession_number = :NEW.accession_number
+ 35  			AND date_returned IS NULL;
+ 36  
+ 37  		UPDATE wgl_patron
+ 38  			SET books_on_loan = books_on_loan - 1
+ 39  			WHERE patron_number = lv_patron_number;
+ 40  
+ 41  		status_update(:NEW.accession_number);
+ 42  	END;
+ 43  	/
+
+Trigger created.
+
+SQL> 
+SQL> --Trigger Tests
+SQL> INSERT INTO wgl_return(accession_number, branch_returned_to)
+  2  	VALUES (12, 2);
+INSERT INTO wgl_return(accession_number, branch_returned_to)
+            *
+ERROR at line 1:
+ORA-20001: That book was not on loan 
+ORA-06512: at "WGL.BOOK_RETURN_BIR", line 13 
+ORA-04088: error during execution of trigger 'WGL.BOOK_RETURN_BIR' 
+
+
+SQL> 
+SQL> INSERT INTO wgl_return(accession_number, branch_returned_to)
+  2  	VALUES (48, 4);
+INSERT INTO wgl_return(accession_number, branch_returned_to)
+            *
+ERROR at line 1:
+ORA-20001: That book was not on loan 
+ORA-06512: at "WGL.BOOK_RETURN_BIR", line 13 
+ORA-04088: error during execution of trigger 'WGL.BOOK_RETURN_BIR' 
+
+
+SQL> 
+SQL> INSERT INTO wgl_return(accession_number, branch_returned_to)
+  2  	VALUES(1, 1);
+INSERT INTO wgl_return(accession_number, branch_returned_to)
+            *
+ERROR at line 1:
+ORA-20001: That book was not on loan 
+ORA-06512: at "WGL.BOOK_RETURN_BIR", line 13 
+ORA-04088: error during execution of trigger 'WGL.BOOK_RETURN_BIR' 
+
+
+SQL> 
+SQL> INSERT INTO wgl_return(accession_number, branch_returned_to)
+  2  	VALUES(26, 4);
+INSERT INTO wgl_return(accession_number, branch_returned_to)
+            *
+ERROR at line 1:
+ORA-20001: That book was not on loan 
+ORA-06512: at "WGL.BOOK_RETURN_BIR", line 13 
+ORA-04088: error during execution of trigger 'WGL.BOOK_RETURN_BIR' 
+
+
+SQL> 
+SQL> SPOOL OFF;

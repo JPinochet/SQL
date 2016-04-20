@@ -1,0 +1,176 @@
+Jorge Pinochet                                            00042873
+
+SQL> 
+SQL> SET ECHO ON
+SQL> 
+SQL> 
+SQL> --Question 1
+SQL> --1
+SQL> CREATE TABLE part
+  2  (part_number      NUMBER(7,2),
+  3    part_description  VARCHAR2(30),
+  4    aisle		 NUMBER(2),
+  5    bin		 NUMBER,
+  6    quantity_on_hand  NUMBER,
+  7    re_order_point	 NUMBER,
+  8    CONSTRAINT part_pk PRIMARY KEY (part_number)
+  9  );
+
+Table created.
+
+SQL> 
+SQL> --2
+SQL> CREATE TABLE supplier
+  2  (supplier_number	 NUMBER(7,2) CONSTRAINT supplier_pk PRIMARY KEY,
+  3    name		 VARCHAR2(50),
+  4    address		 VARCHAR2(20),
+  5    city		 VARCHAR2(10),
+  6    province 	 VARCHAR2(2),
+  7    postal_code	 VARCHAR2(6)
+  8  );
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE supplier
+  2    MODIFY name
+  3  	 CONSTRAINT name_nn NOT NULL;
+
+Table altered.
+
+SQL> 
+SQL> --3
+SQL> CREATE TABLE purchase_order
+  2  (order_number	 NUMBER,
+  3    order_date	 DATE,
+  4    supplier_number	 NUMBER REFERENCES supplier(supplier_number),
+  5    shipping_date	 DATE,
+  6    expected_delivery_date	 DATE,
+  7    part_number	 NUMBER(7,2)
+  8  );
+
+Table created.
+
+SQL> 
+SQL> ALTER TABLE purchase_order
+  2    ADD CONSTRAINT purchase_order_pk PRIMARY KEY(order_number);
+
+Table altered.
+
+SQL> 
+SQL> ALTER TABLE purchase_order
+  2    ADD CONSTRAINT purchase_order_part_fk FOREIGN KEY(part_number)
+  3  	 REFERENCES part(part_number);
+
+Table altered.
+
+SQL> 
+SQL> --Question 2
+SQL> INSERT INTO part(part_number, part_description)
+  2    VALUES (001, 'Jorge');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO supplier (supplier_number, name)
+  2    VALUES (001, 'SAIT');
+
+1 row created.
+
+SQL> 
+SQL> INSERT INTO purchase_order (order_number, supplier_number, part_number)
+  2    VALUES (001, 001, 001);
+
+1 row created.
+
+SQL> 
+SQL> --Question 3
+SQL> CREATE TABLE new_accounts AS
+  2    SELECT *
+  3    FROM imp_account;
+
+Table created.
+
+SQL> 
+SQL> --Question 4
+SQL> ALTER TABLE new_accounts
+  2  	ADD start_date	DATE;
+
+Table altered.
+
+SQL> 
+SQL> DESC new_accounts;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ OWNER_ID                                           NUMBER
+ ACCOUNT_NUMBER                            NOT NULL VARCHAR2(12)
+ DATE_CREATED                                       DATE
+ CREDIT_LIMIT                                       NUMBER(7,2)
+ ACCOUNT_BALANCE                                    NUMBER(7,2)
+ START_DATE                                         DATE
+
+SQL> 
+SQL> --Question 5
+SQL> UPDATE new_accounts
+  2    SET start_date = SYSDATE
+  3    WHERE credit_limit IN (SELECT credit_limit
+  4  				 FROM new_accounts
+  5  				 WHERE credit_limit > 15000);
+
+4 rows updated.
+
+SQL> 
+SQL> 
+SQL> --Question 6
+SQL> DROP TABLE new_accounts;
+
+Table dropped.
+
+SQL> 
+SQL> --Question 7
+SQL> --In Booklet
+SQL> 
+SQL> --Question 8
+SQL> --ON ANOTHER SHEET
+SQL> 
+SQL> --Question 9
+SQL> 
+SQL> 
+SQL> SELECT last_name||', '|| first_name AS Name, a.account_number, cc.card_number, cc.card_type
+  2  FROM imp_person JOIN imp_account a ON person_id = a.owner_id
+  3  		      JOIN imp_credit_card cc ON a.account_number = cc.account_number
+  4  WHERE account_number IN (SELECT account_number
+  5  				 FROM imp_transaction
+  6  				 WHERE UPPER(transaction_type) IN 'D'
+  7  				 HAVING COUNT(card_number) > 1
+  8  				 GROUP BY account_number);
+
+NAME                                                 ACCOUNT_NUMB CAR C         
+---------------------------------------------------- ------------ --- -         
+BASSETT, BILL                                        000123561982 001 A         
+BASSETT, BILL                                        000123561982 002 A         
+BASSETT, BILL                                        000123561982 003 C         
+BASSETT, BILL                                        000123561982 004 C         
+BASSETT, BILL                                        000123561982 005 C         
+KOCH, GEORGE                                         124332005000 001 A         
+KOCH, GEORGE                                         124332005000 002 A         
+KOCH, GEORGE                                         124332005000 003 C         
+KOCH, GEORGE                                         124332005000 004 C         
+STONE, BOB                                           210252161711 001 A         
+
+
+
+
+10 rows selected.
+
+SQL> 
+SQL> --Question 10
+SQL> DELETE FROM imp_transaction
+  2    WHERE transaction_date IN (SELECT transaction_date
+  3  				       FROM imp_transaction
+  4  					WHERE transaction_date < TO_DATE('March 10, 2001','MONTH dd, yyyy'));
+
+0 rows deleted.
+
+SQL> 
+SQL> SPOOL OFF

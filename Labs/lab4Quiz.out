@@ -1,0 +1,142 @@
+Jorge Pinochet                    March 26, 2009
+000432873
+
+SQL> 
+SQL> SET ECHO ON
+SQL> 
+SQL> --Question 1
+SQL> SELECT DISTINCT i.account_number
+  2  FROM imp_credit_card i JOIN imp_account a ON i.account_number = a.account_number
+  3  WHERE card_limit > 10000
+  4  AND account_balance < 1000;
+
+ACCOUNT_NUMB                                                                    
+------------                                                                    
+111122223350                                                                    
+250120003000                                                                    
+707913901602                                                                    
+211750300216                                                                    
+230019851600                                                                    
+256030501234                                                                    
+190017001600                                                                    
+812002182061                                                                    
+721675001900                                                                    
+
+9 rows selected.
+
+SQL> 
+SQL> 
+SQL> --Question 2
+SQL> SELECT t.transaction_date,
+  2  	     t.transaction_type,
+  3  	     t.transaction_amount,
+  4  	     a.account_number,
+  5  	     a.credit_limit
+  6  FROM imp_transaction t JOIN imp_credit_card c ON t.card_number = c.card_number
+  7  			     JOIN imp_account a ON t.account_number = a.account_number
+  8  GROUP BY t.transaction_date,
+  9  	     t.transaction_type,
+ 10  	     t.transaction_amount,
+ 11  	     a.account_number,
+ 12  	     a.credit_limit;
+
+TRANSACTI T TRANSACTION_AMOUNT ACCOUNT_NUMB CREDIT_LIMIT                        
+--------- - ------------------ ------------ ------------                        
+25-MAR-09 C                500 561102101963         1000                        
+22-MAR-09 D                250 650221009163         2000                        
+23-MAR-09 D              19.03 000123561982        10000                        
+18-MAR-09 D              75.65 000123561982        10000                        
+16-MAR-09 D              11000 210252161711        20000                        
+24-MAR-09 D             782.25 124332005000        12000                        
+17-MAR-09 D            2102.65 365025501102        10000                        
+15-MAR-09 D             823.62 561102101963         1000                        
+20-MAR-09 D              17001 240030001625        25000                        
+23-MAR-09 D               1000 000123561982        10000                        
+16-MAR-09 D               6502 210252161711        20000                        
+
+TRANSACTI T TRANSACTION_AMOUNT ACCOUNT_NUMB CREDIT_LIMIT                        
+--------- - ------------------ ------------ ------------                        
+20-MAR-09 D               7.28 000123561982        10000                        
+19-MAR-09 D             121.63 000123561982        10000                        
+15-MAR-09 D             213.02 707913901602        12000                        
+25-MAR-09 C                 75 000123561982        10000                        
+16-MAR-09 D                480 210252161711        20000                        
+23-MAR-09 D                750 111122223350        15000                        
+25-MAR-09 D                495 124332005000        12000                        
+
+18 rows selected.
+
+SQL> 
+SQL> 
+SQL> --Question 3
+SQL> SELECT first_name,
+  2  	     last_name
+  3  FROM imp_person
+  4  WHERE date_of_birth > TO_DATE('January 10, 1972', 'MONTH DD, YYYY')
+  5  AND home_phone LIKE '%6%'
+  6  AND work_phone LIKE '%6%'
+  7  ORDER BY last_name;
+
+FIRST_NAME                LAST_NAME                                             
+------------------------- -------------------------                             
+HARRY                     MOORE                                                 
+HARRIET                   SPRINGER                                              
+
+SQL> 
+SQL> 
+SQL> --Question 4
+SQL> SELECT first_name,
+  2  	     last_name
+  3  FROM imp_person
+  4  WHERE UPPER(province) = (SELECT province
+  5  			      FROM imp_person
+  6  			      WHERE LOWER(last_name) = 'chan'
+  7  			      AND LOWER(first_name) = 'doug')
+  8  AND LOWER(last_name) != 'chan'
+  9  AND LOWER(first_name) != 'doug';
+
+FIRST_NAME                LAST_NAME                                             
+------------------------- -------------------------                             
+ZAMAN                     SINGH                                                 
+HARRIET                   SPRINGER                                              
+HARRY                     MOORE                                                 
+
+SQL> 
+SQL> 
+SQL> --Question 5
+SQL> SELECT p.first_name,
+  2  	     p.last_name,
+  3  	     a.account_number
+  4  FROM imp_person p JOIN imp_account a ON p.person_id = a.owner_id
+  5  WHERE account_number IN (SELECT DISTINCT account_number
+  6  			       FROM imp_account
+  7  			       HAVING credit_limit = MAX(credit_limit)
+  8  			       GROUP BY account_number, credit_limit);
+
+FIRST_NAME                LAST_NAME                 ACCOUNT_NUMB                
+------------------------- ------------------------- ------------                
+GEORGE                    KOCH                      124332005000                
+KEVIN                     LONEY                     220012521601                
+CINDY                     CURTIS                    250120003000                
+ARCHIE                    LAMPMAN                   256030501234                
+GIACOMO                   PUCCINI                   111122223350                
+ADA                       LEE                       650221009163                
+ADA                       LEE                       190017001600                
+LO                        LI                        365025501102                
+ENRICO                    FERMI                     240030001625                
+ZAMAN                     SINGH                     707913901602                
+BILL                      BASSETT                   561102101963                
+
+FIRST_NAME                LAST_NAME                 ACCOUNT_NUMB                
+------------------------- ------------------------- ------------                
+BILL                      BASSETT                   000123561982                
+BOB                       STONE                     210252161711                
+HARRIET                   SPRINGER                  812002182061                
+HARRY                     MOORE                     721675001900                
+DOUG                      CHAN                      230019851600                
+LISA                      ZMED                      211750300216                
+
+17 rows selected.
+
+SQL> 
+SQL> SPOOL OFF

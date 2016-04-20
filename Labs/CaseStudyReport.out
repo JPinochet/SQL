@@ -1,0 +1,105 @@
+Jorge Pinochet                April 2, 09
+
+SQL> 
+SQL> SET PAGESIZE 30
+SQL> 
+SQL> TTITLE CENTER "Outdoor Sports Shop" SKIP 1 -
+> 	  CENTER "Hike Participants" SKIP 1 -
+> 	  CENTER datevar SKIP 3
+SQL> 
+SQL> COLUMN today NOPRINT NEW_VALUE datevar
+SQL> COLUMN r_name HEADING "Region|Name" FORMAT A7
+SQL> COLUMN h_name HEADING "Hike|Name" FORMAT A16
+SQL> COLUMN hike_date HEADING "Hike|Date" FORMAT A18
+SQL> COLUMN name HEADING "Hiker|Name" FORMAT A15
+SQL> 
+SQL> BTITLE CENTER "Confidential Report"
+SQL> 
+SQL> BREAK ON r_name SKIP 2
+SQL> COMPUTE COUNT Label "Total:" OF name ON r_name
+SQL> 
+SQL> SELECT r.name r_name, h.name h_name, TO_CHAR(hp.hike_date, 'fmMonth dd, yyyy') hike_date, p.given_name||','|| p.surname name,TO_CHAR(SYSDATE, 'fmMonth dd, yyyy') today
+  2  FROM region r JOIN hike h ON r.region_id = h.REGION$region_id
+  3  		   JOIN hike_participant hp ON h.hike_id = hp.HIKE$hike_id
+  4  		   JOIN participant p ON hp.PARTICIPANT$participant_code = p.participant_code
+  5  ORDER BY r_name;
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+                               Outdoor Sports Shop                              
+                                Hike Participants                               
+                                  April 2, 2009                                 
+                                                                                
+                                                                                
+Region  Hike             Hike               Hiker                               
+Name    Name             Date               Name                                
+------- ---------------- ------------------ ---------------                     
+Banff   Castle Mountain  August 11, 2008    Gail,Knecht                         
+        Castle Mountain  August 11, 2008    Jack,Buck                           
+        Castle Mountain  August 11, 2008    George,Haeckel                      
+*******                                     ---------------                     
+Total:                                                    3                     
+                                                                                
+                                                                                
+Canmore Yamnuska Circuit September 21, 2008 Mike,Grattan                        
+        Yamnuska Circuit September 21, 2008 George,Haeckel                      
+*******                                     ---------------                     
+Total:                                                    2                     
+                                                                                
+                                                                                
+Ribbon  Skogan Pass      November 11, 2008  Art,Knecht                          
+        Skogan Pass      November 11, 2008  George,Haeckel                      
+*******                                     ---------------                     
+Total:                                                    2                     
+                                                                                
+                                                                                
+
+                               Confidential Report                              
+
+7 rows selected.
+
+SQL> 
+SQL> TTITLE OFF
+SQL> CLEAR COLUMNS
+SQL> CLEAR BREAKS
+SQL> CLEAR COMPUTE
+SQL> BTITLE OFF
+SQL> 
+SQL> SPOOL OFF

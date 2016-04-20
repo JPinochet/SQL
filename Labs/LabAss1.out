@@ -1,0 +1,117 @@
+SQL> 
+SQL> 
+SQL> CREATE SEQUENCE gen_trans_numbers
+  2  INCREMENT BY 1
+  3  START WITH 1000;
+CREATE SEQUENCE gen_trans_numbers
+                *
+ERROR at line 1:
+ORA-00955: name is already used by an existing object 
+
+
+SQL> 
+SQL> SELECT *
+  2  	     FROM wgb_in_transactions;
+
+CUSTOME ACCOUNT_TYPE TRANSACTION_AMOUNT TR                                      
+------- ------------ ------------------ --                                      
+1112401            2               3000 C                                       
+1113501            1             567.25 C                                       
+1113501            1             257.02 C                                       
+1113501            1                300 D                                       
+2566217            4               9800 C                                       
+2566217            4               2200 C                                       
+2566217            4               2000 D                                       
+
+7 rows selected.
+
+SQL> 
+SQL> DECLARE
+  2  	     CURSOR cur_wgb_transaction IS
+  3  		     SELECT *
+  4  			     FROM wgb_in_transactions;
+  5  	     v_type_credit	     CHAR := 'C';
+  6  	     v_type_debit	     CHAR := 'D';
+  7  BEGIN
+  8  	     FOR rec_wgb_transaction IN cur_wgb_transaction LOOP
+  9  		     INSERT INTO wgb_transaction (transaction_number, customer_number, account_type, transaction_amount, transaction_type, transaction_date) --Order of data being inputed.
+ 10  			     VALUES(gen_trans_numbers.NEXTVAL, rec_wgb_transaction.customer_number, rec_wgb_transaction.account_type, rec_wgb_transaction.transaction_amount, rec_wgb_transaction.transaction_type, SYSDATE); --What to put into the table
+ 11  
+ 12  		     IF rec_wgb_transaction.transaction_type = v_type_credit THEN --check if transaction_type is a credit or a debit
+ 13  			     UPDATE wgb_assets
+ 14  				     SET amount = amount + rec_wgb_transaction.transaction_amount;
+ 15  			     UPDATE wgb_account
+ 16  				     SET balance = balance + rec_wgb_transaction.transaction_amount
+ 17  				     WHERE rec_wgb_transaction.customer_number = customer_number
+ 18  				     AND rec_wgb_transaction.account_type = account_type;
+ 19  		     ELSIF rec_wgb_transaction.transaction_type = v_type_debit THEN --check if transaction_type is a credit or a debit
+ 20  			     UPDATE wgb_assets
+ 21  				     SET amount = amount - rec_wgb_transaction.transaction_amount;
+ 22  			     UPDATE wgb_account
+ 23  				     SET balance = balance - rec_wgb_transaction.transaction_amount
+ 24  				     WHERE rec_wgb_transaction.customer_number = customer_number
+ 25  				     AND rec_wgb_transaction.account_type = account_type;
+ 26  		     END IF;
+ 27  		     COMMIT;
+ 28  	     END LOOP;
+ 29  	     COMMIT;
+ 30  END;
+ 31  /
+
+PL/SQL procedure successfully completed.
+
+SQL> 
+SQL> SELECT * FROM wgb_transaction;
+
+TRANSACTION_NUMBER CUSTOME ACCOUNT_TYPE TRANSACTION_AMOUNT T TRANSACTI          
+------------------ ------- ------------ ------------------ - ---------          
+                 1 1112401            1               5000 C 12-OCT-09          
+                 2 1112401            2               6000 C 12-OCT-09          
+                 4 1113501            2               3000 C 13-OCT-09          
+                 6 1112401            2               1000 D 13-OCT-09          
+                 7 1112401            1               6000 C 13-OCT-09          
+                 8 1113004            3               2000 C 13-OCT-09          
+              1047 1112401            2               3000 C 13-OCT-09          
+              1048 1113501            1             567.25 C 13-OCT-09          
+              1049 1113501            1             257.02 C 13-OCT-09          
+              1050 1113501            1                300 D 13-OCT-09          
+              1051 2566217            4               9800 C 13-OCT-09          
+
+TRANSACTION_NUMBER CUSTOME ACCOUNT_TYPE TRANSACTION_AMOUNT T TRANSACTI          
+------------------ ------- ------------ ------------------ - ---------          
+              1052 2566217            4               2200 C 13-OCT-09          
+              1053 2566217            4               2000 D 13-OCT-09          
+
+13 rows selected.
+
+SQL> SELECT * FROM wgb_account;
+
+CUSTOME ACCOUNT_TYPE DATE_CREA    BALANCE                                       
+------- ------------ --------- ----------                                       
+1112401            1 05-OCT-09      11000                                       
+1112401            2 06-OCT-09       8000                                       
+1113004            3 10-OCT-09       2000                                       
+1113501            1 10-OCT-09     524.27                                       
+1113501            2 10-OCT-09       3000                                       
+1113501            3 11-OCT-09          0                                       
+1113501            5 10-OCT-09          0                                       
+2566217            1 12-OCT-09          0                                       
+2566217            4 12-OCT-09      10000                                       
+9871332            3 12-OCT-09          0                                       
+
+10 rows selected.
+
+SQL> SELECT SUM(balance) FROM wgb_account;
+
+SUM(BALANCE)                                                                    
+------------                                                                    
+    34524.27                                                                    
+
+SQL> SELECT SUM(amount) FROM wgb_assets;
+
+SUM(AMOUNT)                                                                     
+-----------                                                                     
+   34524.27                                                                     
+
+SQL> 
+SQL> SPOOL OFF;

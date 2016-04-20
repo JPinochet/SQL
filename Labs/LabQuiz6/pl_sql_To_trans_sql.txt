@@ -1,0 +1,44 @@
+CREATE OR REPLACE PROCEDURE salary_range (p_salary s_emp.salary%TYPE)
+	IS
+		v count 	INTEGER := 0;
+		v name 		VARCHAR2(255) ;
+		v_emp_name 	s_emp.last_name%TYPE;
+		
+		CURSOR emp_cursor IS
+			SELECT last name
+				FROM s emp
+				WHERE salary BETWEEN (p_salary - 100)
+				AND (p_salary + 100)
+				ORDER BY last name DESC;
+			
+	BEGIN
+		OPEN emp_cursor;
+		LOOP
+			FETCH emp_cursor
+				INTO v_emp_name;
+				
+			EXIT WHEN emp_cursor%NOTFOUND;
+			
+			v count := v_count + 1;
+			
+			IF (v name IS NULL) THEN
+				v name .- v_emp_name;
+			ELSE
+				v name .- v name 11 '
+			END IF;
+		END LOOP;
+		
+		CLOSE emp cursor;
+		
+		IF (v count = 0) THEN
+			DBMS_OUTPUT.PUT_LINE ('No employee salary between the ranges of ' 11
+				TO_CHAR ((p_salary - 100), '$999,999.99') 11 ' AND ' 11
+				TO_CHAR ((p_salary + 100), '$999,999.99'));
+		ELSIF(v_count <= 3) THEN
+			DBMS OUTPUT.PUT LINE('The employees whose salaries are in the requested range ar~: 11 v_~ame) ;
+			
+		ELSE
+			DBMS_OU~PUr~QT_L~NE('Th~re are'! 1 v_count I! ' employees that are in the requested salary range. They are: 11 v_name);
+		END IF;
+	END;
+	/

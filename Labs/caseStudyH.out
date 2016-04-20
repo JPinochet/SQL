@@ -1,0 +1,398 @@
+SQL> 
+SQL> SET ECHO ON
+SQL> 
+SQL> --A:
+SQL> 
+SQL> --1.
+SQL> --From the hike and region table
+SQL> --h.REGION$region_id=r.region_id
+SQL> SELECT r.name AS "Region Name",
+  2          h.name AS "Hike Name",
+  3          h.description AS "Hike Description"
+  4     FROM region r, hike h
+  5     WHERE h.REGION$region_id=r.region_id
+  6     ORDER BY r.region_id, h.name;
+
+Region Nam Hike Name                                                            
+---------- --------------------                                                 
+Hike Description                                                                
+--------------------------------------------------------------------------------
+Canmore    Grotto Canyon                                                        
+Imposing rock, scenery and indian pictographs                                   
+                                                                                
+Canmore    Heart Mountain                                                       
+Circuit over summit ridge of Heart Mountain                                     
+                                                                                
+Canmore    Yamnuska Circuit                                                     
+Circuit over summit ridge of Yamnuska                                           
+                                                                                
+
+Region Nam Hike Name                                                            
+---------- --------------------                                                 
+Hike Description                                                                
+--------------------------------------------------------------------------------
+Ribbon     Skogan Pass                                                          
+Old road to pass                                                                
+                                                                                
+Banff      Castle Mountain                                                      
+Trail and route to summit                                                       
+                                                                                
+Banff      Sulphur Mountain                                                     
+Trail to scenic ridge                                                           
+                                                                                
+
+Region Nam Hike Name                                                            
+---------- --------------------                                                 
+Hike Description                                                                
+--------------------------------------------------------------------------------
+Crowsnest  Castle Mountain                                                      
+Trail and route to summit ridge                                                 
+                                                                                
+
+7 rows selected.
+
+SQL> 
+SQL> --2.
+SQL> --From the hike table
+SQL> SELECT name AS "Name", length AS "Length", description AS "Hike Description"
+  2     FROM hike, hike_rating
+  3     WHERE HIKE_RATING$hikes_rating=hikes_rating
+  4     AND UPPER(rating_description) LIKE ('EASY');
+
+Name                     Length                                                 
+-------------------- ----------                                                 
+Hike Description                                                                
+--------------------------------------------------------------------------------
+Heart Mountain               11                                                 
+Circuit over summit ridge of Heart Mountain                                     
+                                                                                
+Grotto Canyon                 3                                                 
+Imposing rock, scenery and indian pictographs                                   
+                                                                                
+
+SQL> 
+SQL> --3
+SQL> --From hike, region, hike_rating
+SQL> --HIKE_RATING$hikes_rating=hike_rating AND REGION$region_id=region_id
+SQL> SELECT r.name AS "Region Name",
+  2            h.name AS "Hike Name",
+  3            h.length AS "Length",
+  4            rating_description
+  5     FROM hike h, hike_rating, region r
+  6     WHERE HIKE_RATING$hikes_rating=hikes_rating
+  7     AND h.REGION$region_id=r.region_id
+  8     AND UPPER(h.name) LIKE ('%MOUNTAIN%')
+  9     OR UPPER(h.name) LIKE ('%PEAK%')
+ 10     ORDER BY r.name, h.name, rating_description;
+
+Region Nam Hike Name                Length                                      
+---------- -------------------- ----------                                      
+RATING_DESCRIPTION                                                              
+--------------------------------------------------------------------------------
+Banff      Castle Mountain              15                                      
+Difficult                                                                       
+                                                                                
+Banff      Sulphur Mountain              8                                      
+Moderate                                                                        
+                                                                                
+Canmore    Heart Mountain               11                                      
+Easy                                                                            
+                                                                                
+
+Region Nam Hike Name                Length                                      
+---------- -------------------- ----------                                      
+RATING_DESCRIPTION                                                              
+--------------------------------------------------------------------------------
+Crowsnest  Castle Mountain              16                                      
+Difficult                                                                       
+                                                                                
+
+SQL> 
+SQL> --4
+SQL> --From the hike table
+SQL> SELECT h.name AS "Hike Name",
+  2          h.description AS "Hike Description",
+  3          h.length AS "Length"
+  4     FROM hike h
+  5     WHERE h.length BETWEEN 10 AND 20;
+
+Hike Name                                                                       
+--------------------                                                            
+Hike Description                                                                
+--------------------------------------------------------------------------------
+    Length                                                                      
+----------                                                                      
+Heart Mountain                                                                  
+Circuit over summit ridge of Heart Mountain                                     
+        11                                                                      
+                                                                                
+Castle Mountain                                                                 
+Trail and route to summit                                                       
+        15                                                                      
+
+Hike Name                                                                       
+--------------------                                                            
+Hike Description                                                                
+--------------------------------------------------------------------------------
+    Length                                                                      
+----------                                                                      
+                                                                                
+Castle Mountain                                                                 
+Trail and route to summit ridge                                                 
+        16                                                                      
+                                                                                
+
+SQL> 
+SQL> SELECT h.name AS "Hike Name", h.description AS "Hike Description", h.length AS "Length"
+  2     FROM hike h
+  3     WHERE h.length >=10 AND h.length <= 20;
+
+Hike Name                                                                       
+--------------------                                                            
+Hike Description                                                                
+--------------------------------------------------------------------------------
+    Length                                                                      
+----------                                                                      
+Heart Mountain                                                                  
+Circuit over summit ridge of Heart Mountain                                     
+        11                                                                      
+                                                                                
+Castle Mountain                                                                 
+Trail and route to summit                                                       
+        15                                                                      
+
+Hike Name                                                                       
+--------------------                                                            
+Hike Description                                                                
+--------------------------------------------------------------------------------
+    Length                                                                      
+----------                                                                      
+                                                                                
+Castle Mountain                                                                 
+Trail and route to summit ridge                                                 
+        16                                                                      
+                                                                                
+
+SQL> 
+SQL> --5
+SQL> --From hike, participant, and hike_participant tables
+SQL> --participant_code = PARTICIPANT$participant_code
+SQL> --HIKE$hike_id=hike_id
+SQL> SELECT p.given_name AS "Participant Given Name",
+  2            p.surname AS "Participant Surname",
+  3            h.name AS "Hike Name",
+  4            h.description AS "Hike Description",
+  5            hc.feedback
+  6     FROM participant p, hike h, hike_participant hp, hike_comment hc
+  7     WHERE participant_code = PARTICIPANT$participant_code(+)
+  8     AND hp.HIKE$hike_id = h.hike_id (+)
+  9     AND h.hike_id = hc.HIKE$hike_id(+)
+ 10    ORDER BY p.surname, h.name;
+
+Participan Participant Surname            Hike Name                             
+---------- ------------------------------ --------------------                  
+Hike Description                                                                
+--------------------------------------------------------------------------------
+FEEDBACK                                                                        
+--------------------------------------------------------------------------------
+Jack       Buck                           Castle Mountain                       
+Trail and route to summit                                                       
+                                                                                
+                                                                                
+Mike       Grattan                        Yamnuska Circuit                      
+Circuit over summit ridge of Yamnuska                                           
+                                                                                
+
+Participan Participant Surname            Hike Name                             
+---------- ------------------------------ --------------------                  
+Hike Description                                                                
+--------------------------------------------------------------------------------
+FEEDBACK                                                                        
+--------------------------------------------------------------------------------
+                                                                                
+George     Haeckel                        Castle Mountain                       
+Trail and route to summit                                                       
+                                                                                
+                                                                                
+George     Haeckel                        Skogan Pass                           
+Old road to pass                                                                
+
+Participan Participant Surname            Hike Name                             
+---------- ------------------------------ --------------------                  
+Hike Description                                                                
+--------------------------------------------------------------------------------
+FEEDBACK                                                                        
+--------------------------------------------------------------------------------
+                                                                                
+                                                                                
+George     Haeckel                        Yamnuska Circuit                      
+Circuit over summit ridge of Yamnuska                                           
+                                                                                
+                                                                                
+Gail       Knecht                         Castle Mountain                       
+
+Participan Participant Surname            Hike Name                             
+---------- ------------------------------ --------------------                  
+Hike Description                                                                
+--------------------------------------------------------------------------------
+FEEDBACK                                                                        
+--------------------------------------------------------------------------------
+Trail and route to summit                                                       
+                                                                                
+                                                                                
+Art        Knecht                         Skogan Pass                           
+Old road to pass                                                                
+                                                                                
+                                                                                
+
+7 rows selected.
+
+SQL> 
+SQL> --6
+SQL> --From hike, region, and hike_rating tables
+SQL> --REGION$region_id = region_id
+SQL> --HIKE_RATING$hikes_rating=hikes_rating
+SQL> SELECT r.name AS "Region Name",
+  2          h.name AS "Hike Name",
+  3          rating_description AS "Difficulty"
+  4     FROM hike h JOIN region r ON REGION$region_id = region_id
+  5                  JOIN hike_rating ON HIKE_RATING$hikes_rating=hikes_rating
+  6     WHERE LOWER(r.name) NOT LIKE ('banff')
+  7     ORDER BY r.name, rating_description;
+
+Region Nam Hike Name                                                            
+---------- --------------------                                                 
+Difficulty                                                                      
+--------------------------------------------------------------------------------
+Canmore    Yamnuska Circuit                                                     
+Difficult                                                                       
+                                                                                
+Canmore    Grotto Canyon                                                        
+Easy                                                                            
+                                                                                
+Canmore    Heart Mountain                                                       
+Easy                                                                            
+                                                                                
+
+Region Nam Hike Name                                                            
+---------- --------------------                                                 
+Difficulty                                                                      
+--------------------------------------------------------------------------------
+Crowsnest  Castle Mountain                                                      
+Difficult                                                                       
+                                                                                
+Ribbon     Skogan Pass                                                          
+Moderate                                                                        
+                                                                                
+
+SQL> 
+SQL> --B:
+SQL> 
+SQL> --1
+SQL> --From hike, region tables
+SQL> --REGION$region_id = region_id
+SQL> SELECT COUNT(h.name) AS "Hikes in Banff region"
+  2     FROM hike h JOIN region r ON REGION$region_id = region_id
+  3     WHERE LOWER(r.name) LIKE ('banff');
+
+Hikes in Banff region                                                           
+---------------------                                                           
+                    2                                                           
+
+SQL> 
+SQL> --2
+SQL> 
+SQL> 
+SQL> --3
+SQL> --From hike and region tables
+SQL> --REGION$region_id = region_id
+SQL> SELECT AVG(length)
+  2     FROM hike
+  3     WHERE REGION$region_id IN(SELECT region_id
+  4                                   FROM region
+  5                                   WHERE UPPER(name) = 'BANFF'
+  6                                   OR UPPER(name) = 'CANMORE');
+
+AVG(LENGTH)                                                                     
+-----------                                                                     
+        9.2                                                                     
+
+SQL> --4
+SQL> --From participant, hike_participant, hike tables
+SQL> --participant_code = PARTICIPANT$participant_code
+SQL> --HIKE$hike_id = hike_id
+SQL> SELECT SUM(length)
+  2     FROM hike JOIN hike_participant ON HIKE$hike_id = hike_id
+  3               JOIN participant ON participant_code = PARTICIPANT$participant_code
+  4     WHERE surname = 'Knecht'
+  5     AND given_name = 'Art'
+  6  
+SQL> --C:
+SQL> 
+SQL> --1.
+SQL> --From hike and region tables
+SQL> --REGION$region_id = region_id
+SQL> SELECT h.name
+  2  FROM hike h JOIN region r ON REGION$region_id = region_id
+  3  WHERE h.name  NOT LIKE (SELECT name
+  4                       FROM hike
+  5                       WHERE UPPER(name) LIKE ('%HEART MOUNTAIN%'));
+
+NAME                                                                            
+--------------------                                                            
+Yamnuska Circuit                                                                
+Skogan Pass                                                                     
+Castle Mountain                                                                 
+Castle Mountain                                                                 
+Grotto Canyon                                                                   
+Sulphur Mountain                                                                
+
+6 rows selected.
+
+SQL> 
+SQL> 
+SQL> --2
+SQL> --From both hike and region tables
+SQL> --REGION$region_id=region_id
+SQL> SELECT h.name AS "Hike Name", r.name AS "Region", h.length
+  2  FROM hike h JOIN region r ON REGION$region_id=region_id
+  3  WHERE h.length > (SELECT length
+  4                       FROM hike
+  5                       WHERE UPPER(name) LIKE '%YAMNUSKA CIRCUIT%');
+
+Hike Name            Region         LENGTH                                      
+-------------------- ---------- ----------                                      
+Heart Mountain       Canmore            11                                      
+Castle Mountain      Banff              15                                      
+Castle Mountain      Crowsnest          16                                      
+
+SQL> 
+SQL> --3
+SQL> 
+SQL> 
+SQL> --4
+SQL> --FROM hike, hike_participant Tables
+SQL> --hike_id=HIKE$hike_id
+SQL> SELECT name
+  2  FROM hike JOIN hike_participant hp ON hike_id=HIKE$hike_id
+  3  GROUP BY name,hike_id HAVING COUNT(*) =
+  4  (SELECT MAX(COUNT(hp.HIKE$hike_id))
+  5  FROM hike h JOIN hike_participant hp ON hike_id=HIKE$hike_id
+  6  GROUP BY hp.HIKE$hike_id);
+
+NAME                                                                            
+--------------------                                                            
+Castle Mountain                                                                 
+
+SQL> 
+SQL> --5
+SQL> 
+SQL> 
+SQL> --6
+SQL> --From hike and picture tables
+SQL> --hike_id=HIKE$hike_id
+SQL> SELECT name
+  2  FROM hike JOIN picture on hike_id=HIKE$hike_id
+  3  WHERE picture_location = NULL
+  4  
+SQL> SPOOL OFF

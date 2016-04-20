@@ -1,0 +1,157 @@
+
+TKPROF: Release 10.2.0.1.0 - Production on Tue Dec 1 13:11:41 2009
+
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+
+Trace file: C:\oraclexe\app\oracle\admin\XE\udump\xe_ora_4168.trc
+Sort options: default
+
+********************************************************************************
+count    = number of times OCI procedure was executed
+cpu      = cpu time in seconds executing 
+elapsed  = elapsed time in seconds executing
+disk     = number of physical reads of buffers from disk
+query    = number of buffers gotten for consistent read
+current  = number of buffers gotten in current mode (usually for update)
+rows     = number of rows processed by the fetch or execute call
+********************************************************************************
+
+The following statement encountered a error during parse:
+
+ALTER SESSEION SET T ...
+=====================
+
+Error encountered: ORA-00940
+********************************************************************************
+
+ALTER SESSION SET SQL_TRACE=TRUE
+
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        0      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        0      0.00       0.00          0          0          0           0
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        1      0.00       0.00          0          0          0           0
+
+Misses in library cache during parse: 0
+Misses in library cache during execute: 1
+Optimizer mode: ALL_ROWS
+Parsing user id: 50  (MORE_MOVIES)
+********************************************************************************
+
+select condition 
+from
+ cdef$ where rowid=:1
+
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.03          0          0          0           0
+Fetch        1      0.00       0.00          0          2          0           1
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        3      0.00       0.03          0          2          0           1
+
+Misses in library cache during parse: 1
+Misses in library cache during execute: 1
+Optimizer mode: CHOOSE
+Parsing user id: SYS   (recursive depth: 1)
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      1  TABLE ACCESS BY USER ROWID CDEF$ (cr=1 pr=0 pw=0 time=55 us)
+
+********************************************************************************
+
+SELECT m.movie_title AS "Movie Title", mr.checkout_date AS "Check Out Date"
+					FROM mm_movie m, mm_rental mr
+						WHERE mr.movie_id=m.movie_id
+						AND checkin_date IS NULL
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.01       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        2      0.00       0.00          0         17          0           7
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        4      0.01       0.00          0         17          0           7
+
+Misses in library cache during parse: 1
+Optimizer mode: ALL_ROWS
+Parsing user id: 50  (MORE_MOVIES)
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      7  NESTED LOOPS  (cr=17 pr=0 pw=0 time=170 us)
+      7   TABLE ACCESS FULL MM_RENTAL (cr=8 pr=0 pw=0 time=167 us)
+      7   TABLE ACCESS BY INDEX ROWID MM_MOVIE (cr=9 pr=0 pw=0 time=353 us)
+      7    INDEX UNIQUE SCAN MOVIES_ID_PK (cr=2 pr=0 pw=0 time=156 us)(object id 14333)
+
+
+Rows     Execution Plan
+-------  ---------------------------------------------------
+      0  SELECT STATEMENT   MODE: ALL_ROWS
+      7   NESTED LOOPS
+      7    TABLE ACCESS   MODE: ANALYZED (FULL) OF 'MM_RENTAL' (TABLE)
+      7    TABLE ACCESS   MODE: ANALYZED (BY INDEX ROWID) OF 'MM_MOVIE' 
+               (TABLE)
+      7     INDEX   MODE: ANALYZED (UNIQUE SCAN) OF 'MOVIES_ID_PK' 
+                (INDEX (UNIQUE))
+
+
+
+
+********************************************************************************
+
+OVERALL TOTALS FOR ALL NON-RECURSIVE STATEMENTS
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.01       0.00          0          0          0           0
+Execute      2      0.00       0.00          0          0          0           0
+Fetch        2      0.00       0.00          0         17          0           7
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        5      0.01       0.00          0         17          0           7
+
+Misses in library cache during parse: 1
+Misses in library cache during execute: 1
+
+
+OVERALL TOTALS FOR ALL RECURSIVE STATEMENTS
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.03          0          0          0           0
+Fetch        1      0.00       0.00          0          2          0           1
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        3      0.00       0.03          0          2          0           1
+
+Misses in library cache during parse: 1
+Misses in library cache during execute: 1
+
+    2  user  SQL statements in session.
+    1  internal SQL statements in session.
+    3  SQL statements in session.
+    1  statement EXPLAINed in this session.
+********************************************************************************
+Trace file: C:\oraclexe\app\oracle\admin\XE\udump\xe_ora_4168.trc
+Trace file compatibility: 10.01.00
+Sort options: default
+
+       1  session in tracefile.
+       2  user  SQL statements in trace file.
+       1  internal SQL statements in trace file.
+       3  SQL statements in trace file.
+       3  unique SQL statements in trace file.
+       1  SQL statements EXPLAINed using schema:
+           MORE_MOVIES.prof$plan_table
+             Default table was used.
+             Table was created.
+             Table was dropped.
+      54  lines in trace file.
+       1  elapsed seconds in trace file.
+
+

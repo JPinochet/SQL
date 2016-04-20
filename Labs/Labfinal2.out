@@ -1,0 +1,91 @@
+SQL> 
+SQL> SET ECHO ON
+SQL> 
+SQL> --Question8
+SQL> 
+SQL> SET PAGESIZE 50
+SQL> 
+SQL> TTITLE CENTER "Impulse Credit Card Company" SKIP 1 -
+> 	  CENTER "Canada Revenue Agency Client Report" SKIP 1 -
+> 	  CENTER datevar SKIP 2
+SQL> 
+SQL> COLUMN today NOPRINT NEW_VALUE datevar
+SQL> COLUMN name HEADING "Card|Holder" FORMAT A10
+SQL> COLUMN a.account_number HEADING "Account|Number" FORMAT A12
+SQL> COLUMN ct.card_type HEADING "Type" FORMAT A1
+SQL> COLUMN ct.payment_terms HEADING "Payment|Terms" FORMAT A20
+SQL> 
+SQL> BTITLE CENTER "Information is accurate as of "
+SQL> BTITLE CENTER datevar
+SQL> 
+SQL> BREAK ON name SKIP 2
+SQL> 
+SQL> 
+SQL> SELECT DISTINCT(p.last_name ||', '|| p.first_name) AS name, a.account_number, ct.type, ct.payment_terms, TO_CHAR(SYSDATE, 'fmMonth dd, yyyy') today
+  2  FROM imp_person p JOIN imp_account a ON owner_id(+) = person_id
+  3  		      JOIN imp_credit_card cc ON cc.account_number = a.account_number
+  4  		      JOIN imp_card_type ct ON cc.card_type = ct.type
+  5  WHERE account_balance > 1000.00
+  6  ORDER BY name;
+
+                           Impulse Credit Card Company                          
+                       Canada Revenue Agency Client Report                      
+                                 April 16, 2009                                 
+                                                                                
+Card                                                                            
+Holder     ACCOUNT_NUMB T                                                       
+---------- ------------ -                                                       
+PAYMENT_TERMS                                                                   
+------------------------------------------------------------                    
+BASSETT, B 000123561982 A                                                       
+ILL                                                                             
+Pay 3% of outstanding balance.                                                  
+                                                                                
+           000123561982 C                                                       
+Pay 100% of this months purchases on that particular card                       
+                                                                                
+                                                                                
+                                                                                
+FERMI, ENR 240030001625 A                                                       
+ICO                                                                             
+Pay 3% of outstanding balance.                                                  
+                                                                                
+                                                                                
+                                                                                
+KOCH, GEOR 124332005000 A                                                       
+GE                                                                              
+Pay 3% of outstanding balance.                                                  
+                                                                                
+           124332005000 C                                                       
+Pay 100% of this months purchases on that particular card                       
+                                                                                
+                                                                                
+                                                                                
+LI, LO     365025501102 A                                                       
+Pay 3% of outstanding balance.                                                  
+                                                                                
+                                                                                
+                                                                                
+STONE, BOB 210252161711 A                                                       
+Pay 3% of outstanding balance.                                                  
+                                                                                
+                                                                                
+                                                                                
+
+
+
+
+
+                                 April 16, 2009                                 
+
+7 rows selected.
+
+SQL> 
+SQL> 
+SQL> TTITLE OFF
+SQL> CLEAR COLUMNS
+SQL> CLEAR BREAKS
+SQL> CLEAR COMPUTE
+SQL> BTITLE OFF
+SQL> 
+SQL> SPOOL OFF
